@@ -1,8 +1,7 @@
 """
 src/schemas.py
 ==============
-Pyarrow schemas for the two output Parquet files, and the synchronous batch
-write helpers called by the writer coroutines.
+Pyarrow schemas for the two output Parquet files, and the synchronous batch write helpers called by the writer coroutines.
 """
 import pyarrow as pa
 import pyarrow.parquet as pq
@@ -10,9 +9,9 @@ import pyarrow.parquet as pq
 
 TRADES_SCHEMA = pa.schema([
     pa.field("tx_hash",        pa.string()),
-    pa.field("poly_rel_ns",    pa.int64()),    # Polymarket arrival ns since run start
-    pa.field("alchemy_rel_ns", pa.int64()),    # Alchemy arrival ns since run start
-    pa.field("delta_ns",       pa.int64()),    # poly_rel_ns - alchemy_rel_ns (signed)
+    pa.field("poly_rel_ns",    pa.int64()),    # Polymarket arrival ns relative to run start
+    pa.field("alchemy_rel_ns", pa.int64()),    # Alchemy arrival ns relative to run start
+    pa.field("delta_ns",       pa.int64()),    # poly_rel_ns - alchemy_rel_ns 
 ])
 
 ORPHANS_SCHEMA = pa.schema([
