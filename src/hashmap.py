@@ -18,9 +18,7 @@ import config
 import src.state as state
 
 
-# ---------------------------------------------------------------------------
-# Internal helper
-# ---------------------------------------------------------------------------
+# --- Internal helper ---
 
 def _enqueue_trade(tx_hash: str, poly_rel_ns: int, alchemy_rel_ns: int) -> None:
     state.trades_queue.put_nowait({
@@ -31,17 +29,22 @@ def _enqueue_trade(tx_hash: str, poly_rel_ns: int, alchemy_rel_ns: int) -> None:
     })
 
 
-# ---------------------------------------------------------------------------
-# Event handlers — called directly from the listener coroutines
-# ---------------------------------------------------------------------------
-
+# --- Event handlers ---
+"""
+Both event handlers are called directly from the listener coroutines
+Each handler: 
+    - Checks if the tx_hash is already in the hashmap. If not, it creates a new entry.
+    - Handles the case where the same pipeline (alchemy or polymarket rtds) fires more than once for the same tx_hash... all arrivals after the first are silently discarded to keep the most accurate timestamp.
+    - Updates the value of the tx_hash with the new relative timestamp for the pipeline (alchemy or polymarket rtds).
+    - Checks whether the other pipeline has already arrived and if so, enqueues the matched trade + deletes the entry from the hashmap.
+"""
 def handle_poly_event(tx_hash: str, rel_ns: int) -> None:
     entry = state.hashmap.get(tx_hash)
     if entry is None:
         state.hashmap[tx_hash] = {"poly_rel_ns": rel_ns, "alchemy_rel_ns": None}
         return
     if entry["poly_rel_ns"] is not None:
-        return  # first arrival wins — discard duplicate
+        return  # first arrival wins (discard duplicates)
     entry["poly_rel_ns"] = rel_ns
     if entry["alchemy_rel_ns"] is not None:
         _enqueue_trade(tx_hash, entry["poly_rel_ns"], entry["alchemy_rel_ns"])
@@ -54,7 +57,7 @@ def handle_alchemy_event(tx_hash: str, rel_ns: int) -> None:
         state.hashmap[tx_hash] = {"poly_rel_ns": None, "alchemy_rel_ns": rel_ns}
         return
     if entry["alchemy_rel_ns"] is not None:
-        return  # first arrival wins — discard duplicate
+        return  # first arrival wins (discard duplicates)
     entry["alchemy_rel_ns"] = rel_ns
     if entry["poly_rel_ns"] is not None:
         _enqueue_trade(tx_hash, entry["poly_rel_ns"], entry["alchemy_rel_ns"])
