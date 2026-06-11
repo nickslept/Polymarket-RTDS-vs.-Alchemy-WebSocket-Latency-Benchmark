@@ -91,9 +91,7 @@ def clear_hashmap_on_disconnect() -> None:
     state.hashmap.clear()
 
 
-# ---------------------------------------------------------------------------
-# TTL sweep — long-running background coroutine
-# ---------------------------------------------------------------------------
+# --- TTL sweep (garbage collection for hashmap) ---
 
 async def ttl_sweep() -> None:
     """
@@ -103,12 +101,12 @@ async def ttl_sweep() -> None:
     while True:
         await asyncio.sleep(config.TTL_CHECK_INTERVAL_S)
 
-        now_rel_ns = time.perf_counter_ns() - state.run_start_ns
-        cutoff_ns  = config.TTL_SECONDS * 1_000_000_000
+        now_rel_ns = time.perf_counter_ns() - state.run_start_ns #elapsed time since run started
+        cutoff_ns  = config.TTL_SECONDS * 1_000_000_000 #convert TTL_SECONDS to nanoseconds
 
         to_evict = [
             tx_hash for tx_hash, entry in state.hashmap.items()
-            if (entry["poly_rel_ns"] or entry["alchemy_rel_ns"] or 0) + cutoff_ns < now_rel_ns
+            if now_rel_ns - (entry["poly_rel_ns"] or entry["alchemy_rel_ns"] or 0) > cutoff_ns #if the current time - the timestamp of the first trade arrival (for either pipeline) is greater than the cutoff time, the entry is added to the list of entries to be evicted
         ]
 
         for tx_hash in to_evict:
