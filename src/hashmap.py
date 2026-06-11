@@ -76,9 +76,8 @@ def handle_alchemy_event(tx_hash: str, rel_ns: int) -> None:
 
 def clear_hashmap_on_disconnect() -> None:
     """
-    Evict every in-flight entry and log each as 'cleared_on_disconnect'.
-    Keeps the orphan log clean — only genuine pipeline drops appear as
-    'unmatched'; entries lost to a disconnect are labelled separately.
+    Called on when the connection to either pipline is lost.
+    Iterates through the hashmap and adds each entry (unmatched trade) to the orphans queue with a reason of "cleared_on_disconnect" to be added to the orphans parquet.
     """
     for tx_hash, entry in list(state.hashmap.items()):
         arrived_side = "polymarket" if entry["poly_rel_ns"] is not None else "alchemy"
