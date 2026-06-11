@@ -1,9 +1,9 @@
 """
-Usage:
-    python main.py
-
-You will be prompted for your Alchemy API key.  Output Parquet files are written to the output/ directory.
-**note to self - add a more in depth explanation of main.py later
+- Prompts the user for an Alchemy API key.
+- Initializes the output directory and creates filenames for the output Parquet files.
+- Sets up the shared state for the tool.
+- Launches all coroutines concurrently to handle WebSocket connections, writing the parquet files, and clearing the hashmap.
+- Handles keyboard interrupts.
 """
 import asyncio
 import os
