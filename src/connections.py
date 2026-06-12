@@ -26,7 +26,7 @@ async def run_connections(alchemy_url: str, order_filled_topic: str) -> None:
             )
             state.data_valid = True
             backoff          = config.RECONNECT_BASE_S
-            print("[connection] Both subscriptions live — collecting data.")
+            print("[connections] Both subscriptions live — collecting data.")
 
             done, _ = await asyncio.wait(
                 [poly_task, alchemy_task],
@@ -36,19 +36,19 @@ async def run_connections(alchemy_url: str, order_filled_topic: str) -> None:
                 try:
                     exc = task.exception()
                     if exc:
-                        print(f"[connection] Dropped with error: {exc}")
+                        print(f"[connections] Dropped with error: {exc}")
                     else:
-                        print("[connection] Connection closed cleanly.")
+                        print("[connections] Connection closed cleanly.")
                 except asyncio.CancelledError:
                     pass
 
         except asyncio.TimeoutError:
             print(
-                f"[connection] Subscription ack timed out after "
+                f"[connections] Subscription ack timed out after "
                 f"{config.SUB_ACK_TIMEOUT_S}s — will retry."
             )
         except Exception as e:
-            print(f"[connection] Unexpected error: {e}")
+            print(f"[connections] Unexpected error: {e}")
 
         finally:
             state.data_valid = False
@@ -61,6 +61,6 @@ async def run_connections(alchemy_url: str, order_filled_topic: str) -> None:
                         pass
             clear_hashmap_on_disconnect()
 
-        print(f"[connection] Reconnecting in {backoff}s...")
+        print(f"[connections] Reconnecting in {backoff}s...")
         await asyncio.sleep(backoff)
         backoff = min(backoff * 2, config.RECONNECT_MAX_S)
