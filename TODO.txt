@@ -8,3 +8,4 @@ GENERAL:
 
 New features:
 - in main.py add something to check for data completeness by adding the starting block and ending block approximation so u can verify that all trades in all blocks are present
+- potentially add other node providers 
