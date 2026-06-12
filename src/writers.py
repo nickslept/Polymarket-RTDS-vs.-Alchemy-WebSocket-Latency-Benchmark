@@ -34,7 +34,7 @@ async def trades_writer(path: str) -> None:
             ):
                 write_trades_batch(writer, buffer)
                 total_rows += len(buffer)
-                print(f"[trades] Flushed {len(buffer)} rows — {total_rows} total matched trades")
+                print(f"[writers] Flushed {len(buffer)} rows. {total_rows} total matched trades.")
                 buffer.clear()
                 last_flush = time.monotonic()
     finally:
@@ -48,7 +48,7 @@ async def trades_writer(path: str) -> None:
                 write_trades_batch(writer, buffer)
             writer.close()
         except Exception as e:
-            print(f"[shutdown] Error flushing trades: {e}")
+            print(f"[writers] Error flushing trades: {e}")
 
 
 async def orphans_writer(path: str) -> None:
@@ -72,7 +72,7 @@ async def orphans_writer(path: str) -> None:
             ):
                 write_orphans_batch(writer, buffer)
                 total_rows += len(buffer)
-                print(f"[orphans] Flushed {len(buffer)} rows — {total_rows} total orphans")
+                print(f"[writers] Flushed {len(buffer)} rows. {total_rows} total orphans.")
                 buffer.clear()
                 last_flush = time.monotonic()
     finally:
@@ -86,4 +86,4 @@ async def orphans_writer(path: str) -> None:
                 write_orphans_batch(writer, buffer)
             writer.close()
         except Exception as e:
-            print(f"[shutdown] Error flushing orphans: {e}")
+            print(f"[writers] Error flushing orphans: {e}")
