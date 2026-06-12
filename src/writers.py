@@ -1,14 +1,3 @@
-"""
-src/writers.py
-==============
-Async writer coroutines for the trades and orphans Parquet files.
-
-Each writer:
-  - Drains its queue into an in-memory buffer
-  - Flushes to Parquet when FLUSH_ROWS is reached OR FLUSH_INTERVAL_S seconds have elapsed, whichever comes first
-  - Never blocks the event loop (all disk I/O is isolated here)
-  - On any exit (KeyboardInterrupt / CancelledError), the finally block drains the queue and flushes remaining rows before closing the file
-"""
 import asyncio
 import time
 
