@@ -90,7 +90,7 @@ async def alchemy_listener(
 
         # Alchemy sends back an ack with {"jsonrpc":"2.0","id":1,"result":"0x..."}
         ack_raw = await asyncio.wait_for(ws.recv(), timeout=config.SUB_ACK_TIMEOUT_S)
-        ack     = json.loads(ack_raw)
+        ack     = json.loads(ack_raw) #converts json string to python dict
         if "result" not in ack:
             raise RuntimeError(f"Unexpected Alchemy ack: {ack_raw}")
         print(f"[listeners] Alchemy subscription ack received.")
@@ -107,6 +107,6 @@ async def alchemy_listener(
                 result  = msg.get("params", {}).get("result", {})
                 tx_hash = result.get("transactionHash")
                 if tx_hash:
-                    handle_alchemy_event(tx_hash, arrival_perf_ns - state.run_start_ns)
+                    handle_alchemy_event(tx_hash, arrival_perf_ns - state.run_start_ns) #if the transaction hash evaluates to None (bc it isn't present in the payload), then the data is skipped/not sent to handle_alchemy_event()
             except Exception:
                 pass
