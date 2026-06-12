@@ -45,7 +45,7 @@ async def run_connections(alchemy_url: str, order_filled_topic: str) -> None:
         except asyncio.TimeoutError:
             print(
                 f"[connections] Subscription ack timed out after "
-                f"{config.SUB_ACK_TIMEOUT_S} seconds. Will retry."
+                f"{config.SUB_ACK_TIMEOUT_S} seconds. Will try to reconnect."
             )
         except Exception as e:
             print(f"[connections] Unexpected error: {e}")
@@ -59,8 +59,10 @@ async def run_connections(alchemy_url: str, order_filled_topic: str) -> None:
                         await task
                     except (asyncio.CancelledError, Exception):
                         pass
+                    print(f"[connections] {task.get_name()} subscription cancelled.")
             clear_hashmap_on_disconnect()
+            print(f"[connections] Hashmap cleared.")
 
-        print(f"[connections] Reconnecting in {backoff}s...")
+        print(f"[connections] Reconnecting in {backoff} seconds...")
         await asyncio.sleep(backoff)
         backoff = min(backoff * 2, config.RECONNECT_MAX_S)
