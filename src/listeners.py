@@ -10,7 +10,7 @@ from src.hashmap import handle_poly_event, handle_alchemy_event
 
 
 # --- Polymarket WebSocket connection parameters ---
-_POLY_WS_URL = "wss://ws-live-data.polymarket.com"
+_POLY_WS_URL = "wss://ws-live-data.polymarket.com" #no authentication required
 _POLY_SUB    = json.dumps({
     "action": "subscribe",
     "subscriptions": [
@@ -31,7 +31,7 @@ async def _poly_ping_loop(ws) -> None:
 async def polymarket_listener(ready_event: asyncio.Event) -> None:
     async with websockets.connect(_POLY_WS_URL, close_timeout=1) as ws:
         await ws.send(_POLY_SUB)
-        print(f"[connection] Polymarket subscription sent.")
+        print(f"[listeners] Polymarket subscription sent. Assuming subscription was successful as no ack expected...")
         ready_event.set()  # polymarket doesn't send an ack upon subscription, so we proceed with the assumption that the subscription was successful
 
         ping_task = asyncio.create_task(_poly_ping_loop(ws))
@@ -68,7 +68,7 @@ async def alchemy_listener(
     ready_event:        asyncio.Event,
     ws_url:             str,
     order_filled_topic: str,
-) -> None:
+) -> None: #API key required which is why ws_url is a parameter for alchemy_listener()
     async with websockets.connect(ws_url, close_timeout=1) as ws:
         sub_payload = json.dumps({
             "jsonrpc": "2.0",
@@ -86,20 +86,21 @@ async def alchemy_listener(
             ],
         })
         await ws.send(sub_payload)
+        print(f"[listeners] Alchemy subscription sent.")
 
-        # Alchemy responds with {"jsonrpc":"2.0","id":1,"result":"0x..."}
+        # Alchemy sends back an ack with {"jsonrpc":"2.0","id":1,"result":"0x..."}
         ack_raw = await asyncio.wait_for(ws.recv(), timeout=config.SUB_ACK_TIMEOUT_S)
         ack     = json.loads(ack_raw)
         if "result" not in ack:
             raise RuntimeError(f"Unexpected Alchemy ack: {ack_raw}")
-        print(f"[connection] Alchemy subscription ack received.")
+        print(f"[listeners] Alchemy subscription ack received.")
         ready_event.set()
 
         async for raw in ws:
-            arrival_perf_ns = time.perf_counter_ns()  # ← first line; no earlier work
+            arrival_perf_ns = time.perf_counter_ns()  
 
             if not state.data_valid:
-                continue
+                continue #skips the newest trade if the polymarket connection dropped so you don't populate the hashmap with trades that will never be matched
 
             try:
                 msg     = json.loads(raw)
