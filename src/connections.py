@@ -1,20 +1,3 @@
-"""
-src/connections.py
-==================
-Connection manager: opens both WebSocket connections simultaneously, waits
-for both subscription acknowledgments, then monitors both connections and
-handles reconnection with exponential backoff.
-
-On any disconnect or ack timeout:
-  1. data_valid is set to False — in-flight events are discarded
-  2. Both tasks are cancelled
-  3. The hashmap is cleared; every entry is logged as cleared_on_disconnect
-  4. Exponential backoff before the next attempt
-  5. Both connections are re-opened simultaneously
-  6. data_valid is set to True only once both subscription acks are received
-
-Backoff resets to RECONNECT_BASE_S on every successful dual-connect.
-"""
 import asyncio
 
 import config
