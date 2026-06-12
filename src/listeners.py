@@ -1,18 +1,3 @@
-"""
-src/listeners.py
-================
-WebSocket listeners for the two data pipelines.
-
-Both listeners follow the same pattern:
-  1. Connect
-  2. Send subscription payload
-  3. Wait for acknowledgment — set ready_event once confirmed
-  4. Stream messages indefinitely, recording arrival timestamps and updating
-     the hashmap
-
-The arrival timestamp (time.perf_counter_ns()) is always the absolute first
-operation after a message is received, before any parsing or branching.
-"""
 import asyncio
 import json
 import time
