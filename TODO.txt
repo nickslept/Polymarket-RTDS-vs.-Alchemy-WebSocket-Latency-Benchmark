@@ -1,6 +1,0 @@
-GENERAL:
-- fix up the multi-line comments at the top of each .py file
-
-New features:
-- in main.py add something to check for data completeness by adding the starting block and ending block approximation so u can verify that all trades in all blocks are present
-- potentially add other node providers (likely a whole new program)

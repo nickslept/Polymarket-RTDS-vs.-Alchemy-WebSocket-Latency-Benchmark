@@ -2,11 +2,31 @@ import asyncio
 import json
 import time
 
+import urllib.request
+import urllib.error
+
 import websockets
 
 import config
 import src.state as state
 from src.hashmap import handle_poly_event, handle_alchemy_event
+
+# --- API key validation ---
+def validate_api_key(api_key: str, url_with_key: str) -> None:
+    if not api_key:
+        raise SystemExit("[listeners] Error: ALCHEMY_API_KEY environment variable is not set.\nRun: $env:ALCHEMY_API_KEY=\"your_key_here\"")
+    
+    http_url = url_with_key.replace("wss://", "https://")
+    payload  = json.dumps({"jsonrpc": "2.0", "method": "eth_blockNumber", "params": [], "id": 1}).encode()
+    req      = urllib.request.Request(http_url, data=payload, headers={"Content-Type": "application/json"})
+    
+    try:
+        urllib.request.urlopen(req, timeout=10)
+    except urllib.error.HTTPError as e:
+        if e.code == 401:
+            raise SystemExit("[listeners] Invalid Alchemy API key (HTTP 401 Unauthorized).")
+    except urllib.error.URLError:
+        pass
 
 
 # --- Polymarket WebSocket connection parameters ---
