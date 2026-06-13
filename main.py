@@ -18,8 +18,10 @@ from src.writers import trades_writer, orphans_writer
 
 
 async def main() -> None:
-    # --- User input ---
-    api_key     = input("Enter Alchemy API key: ").strip()
+    # --- Alchemy API key ---
+    api_key     = os.environ.get("ALCHEMY_API_KEY")
+    if not api_key:
+        raise SystemExit("Error: ALCHEMY_API_KEY environment variable is not set.\nRun: $env:ALCHEMY_API_KEY=\"your_key_here\"")
     alchemy_url = f"wss://polygon-mainnet.g.alchemy.com/v2/{api_key}"
 
     # --- Output paths ---
@@ -48,4 +50,4 @@ if __name__ == "__main__":
     try:
         asyncio.run(main())
     except KeyboardInterrupt:
-        print("\n[shutdown] Successfully shutdown.")
+        print("[shutdown] Successfully shutdown.")
