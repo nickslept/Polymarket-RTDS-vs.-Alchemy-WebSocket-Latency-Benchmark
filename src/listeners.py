@@ -89,7 +89,7 @@ async def alchemy_listener(
         print(f"[listeners] Alchemy subscription sent.")
 
         # Alchemy sends back an ack with {"jsonrpc":"2.0","id":1,"result":"0x..."}
-        ack_raw = await asyncio.wait_for(ws.recv(), timeout=config.SUB_ACK_TIMEOUT_S)
+        ack_raw = await asyncio.wait_for(ws.recv(), timeout=config.SUB_ACK_TIMEOUT_SECONDS)
         ack     = json.loads(ack_raw) #converts json string to python dict
         if "result" not in ack:
             raise RuntimeError(f"Unexpected Alchemy ack: {ack_raw}")

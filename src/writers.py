@@ -22,7 +22,7 @@ async def trades_writer(path: str) -> None:
     try:
         while True:
             try:
-                timeout = max(config.FLUSH_INTERVAL_S - (time.monotonic() - last_flush), 0.01) 
+                timeout = max(config.FLUSH_INTERVAL_SECONDS - (time.monotonic() - last_flush), 0.01) 
                 row     = await asyncio.wait_for(state.trades_queue.get(), timeout=timeout)
                 buffer.append(row)
             except asyncio.TimeoutError: # no new rows arrived within the flush interval
@@ -30,7 +30,7 @@ async def trades_writer(path: str) -> None:
 
             if buffer and (
                 len(buffer) >= config.FLUSH_ROWS
-                or time.monotonic() - last_flush >= config.FLUSH_INTERVAL_S
+                or time.monotonic() - last_flush >= config.FLUSH_INTERVAL_SECONDS
             ):
                 write_trades_batch(writer, buffer)
                 total_rows += len(buffer)
@@ -63,7 +63,7 @@ async def orphans_writer(path: str) -> None:
     try:
         while True:
             try:
-                timeout = max(config.FLUSH_INTERVAL_S - (time.monotonic() - last_flush), 0.01)
+                timeout = max(config.FLUSH_INTERVAL_SECONDS - (time.monotonic() - last_flush), 0.01)
                 row     = await asyncio.wait_for(state.orphans_queue.get(), timeout=timeout)
                 buffer.append(row)
             except asyncio.TimeoutError:
@@ -71,7 +71,7 @@ async def orphans_writer(path: str) -> None:
 
             if buffer and (
                 len(buffer) >= config.FLUSH_ROWS
-                or time.monotonic() - last_flush >= config.FLUSH_INTERVAL_S
+                or time.monotonic() - last_flush >= config.FLUSH_INTERVAL_SECONDS
             ):
                 write_orphans_batch(writer, buffer)
                 total_rows += len(buffer)

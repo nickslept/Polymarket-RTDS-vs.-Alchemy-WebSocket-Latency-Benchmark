@@ -82,11 +82,11 @@ def clear_hashmap_on_disconnect() -> None:
 
 async def ttl_sweep() -> None:
     """
-    Runs every TTL_CHECK_INTERVAL_S seconds.
+    Runs every TTL_CHECK_INTERVAL_SECONDS seconds.
     Any entry whose first-arrived timestamp is older than TTL_SECONDS seconds is evicted and added to the orphans queue with a reason of "unmatched" to be added to the orphans parquet.
     """
     while True:
-        await asyncio.sleep(config.TTL_CHECK_INTERVAL_S)
+        await asyncio.sleep(config.TTL_CHECK_INTERVAL_SECONDS)
 
         now_rel_ns = time.perf_counter_ns() - state.run_start_ns #elapsed time since run started
         cutoff_ns  = config.TTL_SECONDS * 1_000_000_000 #convert TTL_SECONDS to nanoseconds

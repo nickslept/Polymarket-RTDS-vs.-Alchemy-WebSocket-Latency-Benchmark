@@ -8,19 +8,19 @@ ORDER_FILLED_TOPIC        = "0xd543adfd945773f1a62f74f0ee55a5e3b9b1a28262980ba90
 
 # --- Parquet writer ----------------------------------------------------------
 # Buffer is "flushed" (written to disk) when EITHER threshold is crossed first.
-FLUSH_ROWS                = 100   # flush after this many buffered rows
-FLUSH_INTERVAL_S          = 10    # flush after this many seconds
+FLUSH_ROWS                 = 100   # flush after this many buffered rows
+FLUSH_INTERVAL_SECONDS     = 10    # flush after this many seconds
 
 # --- Hashmap / unmatched OrderFilled event removal -----------------------------------------------
-TTL_SECONDS               = 60    # max number of seconds to keep unmatched OrderFilled events in the hashmap
-TTL_CHECK_INTERVAL_S      = 30    # how often the hashmap is checked for stale OrderFilled events 
+TTL_SECONDS                = 60    # max number of seconds to keep unmatched OrderFilled events in the hashmap
+TTL_CHECK_INTERVAL_SECONDS = 30    # how often the hashmap is checked for stale OrderFilled events 
 
 # --- Reconnection (exponential backoff) --------------------------------------
-RECONNECT_BASE_S          = 1     # initial retry delay in seconds
-RECONNECT_MAX_S           = 30    # maximum retry delay in seconds
+RECONNECT_BASE_SECONDS          = 1     # initial retry delay in seconds
+RECONNECT_MAX_SECONDS           = 30    # maximum retry delay in seconds
 
 # --- Startup synchronisation -------------------------------------------------
-SUB_ACK_TIMEOUT_S         = 30    # max seconds to wait for subscription ack
+SUB_ACK_TIMEOUT_SECONDS         = 30    # max seconds to wait for subscription ack
 
 # --- Output ------------------------------------------------------------------
 OUTPUT_DIR                = "output"
