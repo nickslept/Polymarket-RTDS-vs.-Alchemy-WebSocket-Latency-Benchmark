@@ -3,7 +3,7 @@
 ![Python](https://img.shields.io/badge/python-3.10%2B-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
-A latency benchmark for **same-trade detection** on Polymarket. The tool subscribes to two independent live data sources at the same time, matches the trades they report, and records how much sooner one source reported a given trade than the other. The result is a clean Parquet file ready for analysis.
+A latency benchmark for **same-trade detection** on Polymarket. The tool subscribes to two independent live data sources at the same time, matches the trades they report, and records how much sooner one source reported a given trade than the other. The result is two clean Parquet files ready for analysis.
 
 The two sources being compared:
 
@@ -36,7 +36,7 @@ flowchart LR
 
 1. **Two listeners run concurrently.** Each one timestamps every incoming trade the instant it arrives, using a high-resolution monotonic clock (`time.perf_counter_ns()`), and records the trade's `transactionHash`.
 
-2. **Trades are matched by `transactionHash` in an in-memory hashmap.** The first arrival from a source creates an entry. When the *other* source reports the same hash, the trade is considered matched. If the same source reports the same hash more than once (should never happen), only the first arrival is kept (duplicates are discarded to preserve the earliest timestamp).
+2. **Trades are matched by `transactionHash` in an in-memory hashmap.** The first arrival from a source creates an entry. When the *other* source reports the same hash, the trade is considered matched. If the same source reports the same hash more than once, only the first arrival is kept (duplicates are discarded to preserve the earliest timestamp).
 
 3. **Matched trades are written to `trades_*.parquet`**, including the latency difference between the two sources (see [Output](#output)).
 
@@ -151,7 +151,7 @@ It runs continuously, collecting for as long as you leave it open.
 
 ### Stopping a run
 
-Press **`Ctrl+C`** to stop. This is the intended way to end a run. It triggers a clean shutdown that **drains any buffered and queued rows to disk before exiting**, so the trades and orphans you've collected are saved. You'll see a `successfully shutdown` message once it's done.
+Press **`Ctrl+C`** to stop. This is the intended way to end a run. It triggers a clean shutdown that **drains any buffered and queued rows to disk before exiting**, so the trades and orphans you've collected are saved. You'll see a `[main] Successfully shutdown.` message once it's done.
 
 ---
 
